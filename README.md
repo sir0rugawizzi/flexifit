@@ -28,7 +28,7 @@ cd client && npm install && cd ..
 ```bash
 cp .env.example .env
 ```
-*(Optional: add your `ANTHROPIC_API_KEY` to `.env` to test live Claude Vision analysis. If left empty, FlexiFit seamlessly uses structured prototype sample feedback so the demo never breaks!)*
+*(Optional: add your `GEMINI_API_KEY` to `.env` to test live Google Gemini multimodal vision analysis with `gemini-2.5-flash`. If left empty, FlexiFit seamlessly uses structured prototype sample feedback so the demo never breaks!)*
 
 ### 3. Run Development Mode
 ```bash
@@ -111,7 +111,7 @@ Add these under the **Environment** tab in your Render Web Service:
 | `JWT_SECRET` | **Yes** | A strong random string (e.g. `openssl rand -hex 32`). *The server refuses to start in production without this.* |
 | `PORT` | Auto | Render sets this automatically (defaults to `3000` locally, `10000` on Render). Server binds to `0.0.0.0`. |
 | `GEMINI_API_KEY` | Optional | Your Google Gemini API key for live video form analysis (falls back to sample analysis if empty). |
-| `GEMINI_MODEL` | Optional | `gemini-1.5-flash` |
+| `GEMINI_MODEL` | Optional | `gemini-2.5-flash` (Current vision-capable model on the free tier) |
 | `ORDS_BASE_URL` | Optional | Oracle ORDS endpoint URL. **Leave empty** to use local SQLite mode with full auto-seeded demo story. |
 
 ### 3. Automatic Seeding on Startup
@@ -163,7 +163,7 @@ Use the floating **"5-Min Pitch Mode"** bar at the top of the app to jump direct
 ### Beat 4: Visual AI Guidance — Live Pose & Video Form Check (3:00 – 4:00)
 - **Presenter Action:** Click **[4. Live Pose & AI Form]**.
 - **Mode A (Live Pose Tracking):** Demonstrates on-device angle tracking (MediaPipe). Start tracking to show real-time squat depth detection (`<90°`), joint angle HUD, rep counting, and audio/visual cues (*"Chest high"*, *"Drive knees outward"*). Emphasize that video never leaves the phone.
-- **Mode B (AI Video Form Check):** Tap **"Sample Squat Clip"**. The browser extracts 5 canvas frames and submits them to Claude Vision. The screen returns structured cue cards: *What Looked Good*, *Corrections Needed*, *Coaching Cue*, and safety notes. Coach Brian can add his personal voice note/comment underneath.
+- **Mode B (AI Video Form Check):** Tap **"Sample Squat Clip"**. The browser extracts 5 canvas frames and submits them to Google Gemini Vision. The screen returns structured cue cards: *What Looked Good*, *Corrections Needed*, *Coaching Cue*, and safety notes. Coach Brian can add his personal voice note/comment underneath.
 
 ### Beat 5: Business Economics & Scaling Model (4:00 – 5:00)
 - **Presenter Action:** Click **[5. Trainer Economics]**.

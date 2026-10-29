@@ -25,10 +25,9 @@ const config = Object.freeze({
   NODE_ENV: process.env.NODE_ENV || 'development',
 
   // ── External services ───────────────────────────────────
+  // Google Gemini API (free-tier vision-capable model)
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
-  ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
   ORDS_BASE_URL: process.env.ORDS_BASE_URL || '',
 
   // ── Uploads ─────────────────────────────────────────────

@@ -1,10 +1,10 @@
 // server/src/routes/formCheck.js
-// Form-check video upload, Claude AI vision analysis, and live pose session persistence
+// Form-check video upload, Google Gemini AI vision analysis, and live pose session persistence
 
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 import { upload } from '../middleware/upload.js';
-import { analyzeExerciseFrames } from '../services/claudeAi.js';
+import { analyzeExerciseFrames } from '../services/geminiAi.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -25,7 +25,7 @@ router.post('/upload', upload.single('video'), async (req, res) => {
 
     const videoPath = req.file ? `/uploads/${req.file.filename}` : '/uploads/demo-squat.mp4';
 
-    // Call Claude AI analysis (with bulletproof sample fallback)
+    // Call Gemini AI analysis (with bulletproof sample fallback)
     const aiResult = await analyzeExerciseFrames(exercise_name, framesArray);
 
     // Save record to DB
