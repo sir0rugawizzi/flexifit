@@ -10,12 +10,23 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // Load .env from project root (two levels up from server/src/)
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+// In production, require JWT_SECRET and refuse to start without it
+if (isProduction && (!process.env.JWT_SECRET || !process.env.JWT_SECRET.trim())) {
+  console.error('FATAL: JWT_SECRET environment variable is required in production.');
+  process.exit(1);
+}
+
 const config = Object.freeze({
   // ── Server ──────────────────────────────────────────────
-  PORT: process.env.PORT || 3000,
+  PORT: parseInt(process.env.PORT, 10) || 3000,
   JWT_SECRET: process.env.JWT_SECRET || 'flexifit-dev-secret-change-me',
+  NODE_ENV: process.env.NODE_ENV || 'development',
 
   // ── External services ───────────────────────────────────
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
   ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || '',
   ANTHROPIC_MODEL: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
   ORDS_BASE_URL: process.env.ORDS_BASE_URL || '',

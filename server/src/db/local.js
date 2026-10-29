@@ -2,7 +2,7 @@
 // SQLite implementation using better-sqlite3 with auto-initialization & full demo seeding
 
 import Database from 'better-sqlite3';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
@@ -22,6 +22,10 @@ export class LocalAdapter extends DataAdapter {
 
   async initialize() {
     console.log(`LocalAdapter: connecting to SQLite at ${this.dbPath}`);
+    const dbDir = dirname(this.dbPath);
+    if (!existsSync(dbDir)) {
+      mkdirSync(dbDir, { recursive: true });
+    }
     this.db = new Database(this.dbPath);
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');

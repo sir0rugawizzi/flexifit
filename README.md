@@ -76,20 +76,7 @@ npm run share
 ---
 
 ### ☁️ Method 2: Free 24/7 Cloud Deployment (Render.com)
-If you want a permanent link that stays online even when your computer is off:
-1. Push this project to your GitHub repository:
-   ```bash
-   git add .
-   git commit -m "FlexiFit app with sharing configuration"
-   git push origin main
-   ```
-2. Go to [Render.com](https://render.com) and sign up for a free account.
-3. Click **New +** $\rightarrow$ **Web Service** $\rightarrow$ connect your GitHub repo.
-4. Render will automatically detect the settings from `render.yaml`:
-   - **Environment:** `Node`
-   - **Build Command:** `cd server && npm install && cd ../client && npm install && npm run build`
-   - **Start Command:** `node server/src/index.js`
-5. Click **Create Web Service**. Within ~3 minutes you get a permanent URL like `https://flexifit.onrender.com` to submit to your lecturer or share on WhatsApp!
+See the full [Deploying to Render](#-deploying-to-render) guide below for exact commands, environment variables, and 1-click configuration.
 
 ---
 
@@ -99,6 +86,40 @@ Any groupmate who has Docker installed can run the complete full-stack app with 
 docker compose up --build
 ```
 Then open `http://localhost:3000` in their browser.
+
+---
+
+## 🚀 Deploying to Render
+
+Deploy FlexiFit as a single Node Web Service on [Render.com](https://render.com) (free tier):
+
+### 1. Web Service Settings
+| Setting | Exact Value |
+| :--- | :--- |
+| **Runtime** | `Node` |
+| **Node Version** | `>= 20` (specified in `engines` field) |
+| **Build Command** | `npm run build` *(or `cd server && npm install && cd ../client && npm install && npm run build`)* |
+| **Start Command** | `npm start` *(or `node server/src/index.js`)* |
+| **Health Check Path** | `/healthz` |
+
+### 2. Environment Variables
+Add these under the **Environment** tab in your Render Web Service:
+
+| Variable | Required | Value / Description |
+| :--- | :---: | :--- |
+| `NODE_ENV` | **Yes** | `production` |
+| `JWT_SECRET` | **Yes** | A strong random string (e.g. `openssl rand -hex 32`). *The server refuses to start in production without this.* |
+| `PORT` | Auto | Render sets this automatically (defaults to `3000` locally, `10000` on Render). Server binds to `0.0.0.0`. |
+| `GEMINI_API_KEY` | Optional | Your Google Gemini API key for live video form analysis (falls back to sample analysis if empty). |
+| `GEMINI_MODEL` | Optional | `gemini-1.5-flash` |
+| `ORDS_BASE_URL` | Optional | Oracle ORDS endpoint URL. **Leave empty** to use local SQLite mode with full auto-seeded demo story. |
+
+### 3. Automatic Seeding on Startup
+On first startup in SQLite mode, FlexiFit detects if tables are empty and automatically:
+- Creates all tables with `CREATE TABLE IF NOT EXISTS`
+- Seeds all **60+ authentic Ugandan foods**
+- Seeds **Coach Brian Mukasa & 6 clients** with 4 weeks of compliance history, meal plans, and workout logs
+- Serves the built frontend SPA from `client/dist` with client-side routing fallback
 
 ---
 
