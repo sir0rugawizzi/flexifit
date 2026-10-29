@@ -56,6 +56,52 @@ Runs 14 unit test suites covering:
 
 ---
 
+## 📱 How to Share FlexiFit with Groupmates
+
+You have three easy ways to share the app with your university groupmates and lecturers:
+
+### 🚀 Method 1: Instant Live Share (Recommended for Classroom & Phone Testing)
+Run this single command from your terminal:
+```bash
+npm run share
+```
+**What happens:**
+1. Starts the FlexiFit production server.
+2. Generates a secure, temporary **public HTTPS URL** (`https://*.trycloudflare.com`).
+3. Displays a **QR Code directly in your terminal**.
+4. **Groupmates simply scan the QR code with their phone camera** (or click the URL) to access the app immediately!
+5. **Install on Phone:** Groupmates can tap **"Add to Home Screen"** (Safari on iPhone) or **"Install App"** (Chrome on Android) to install FlexiFit as a full mobile app with its app icon!
+6. All demo accounts and the 1-click **5-minute pitch mode bar** are ready to use.
+
+---
+
+### ☁️ Method 2: Free 24/7 Cloud Deployment (Render.com)
+If you want a permanent link that stays online even when your computer is off:
+1. Push this project to your GitHub repository:
+   ```bash
+   git add .
+   git commit -m "FlexiFit app with sharing configuration"
+   git push origin main
+   ```
+2. Go to [Render.com](https://render.com) and sign up for a free account.
+3. Click **New +** $\rightarrow$ **Web Service** $\rightarrow$ connect your GitHub repo.
+4. Render will automatically detect the settings from `render.yaml`:
+   - **Environment:** `Node`
+   - **Build Command:** `cd server && npm install && cd ../client && npm install && npm run build`
+   - **Start Command:** `node server/src/index.js`
+5. Click **Create Web Service**. Within ~3 minutes you get a permanent URL like `https://flexifit.onrender.com` to submit to your lecturer or share on WhatsApp!
+
+---
+
+### 🐳 Method 3: Run with Docker (For Groupmates Running Code Locally)
+Any groupmate who has Docker installed can run the complete full-stack app with zero setup:
+```bash
+docker compose up --build
+```
+Then open `http://localhost:3000` in their browser.
+
+---
+
 ## 🔑 Demo Credentials
 
 All seeded accounts share the password: **`password123`**  

@@ -1,0 +1,14 @@
+services:
+  flexifit:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      - flexifit-data:/app/server/src/db/sqlite
+    restart: unless-stopped
+
+volumes:
+  flexifit-data:

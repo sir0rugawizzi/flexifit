@@ -9,11 +9,15 @@
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
     "build": "cd client && npm run build",
+    "build:all": "cd server && npm install && cd ../client && npm install && npm run build",
     "start": "cd server && npm start",
+    "share": "node scripts/share.js",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
     "test": "cd server && npm test",
     "lint": "eslint server/src client/src"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "qrcode-terminal": "^0.12.0"
   }
 }
