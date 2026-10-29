@@ -393,7 +393,7 @@ export class LocalAdapter extends DataAdapter {
       params.push(category);
     }
     if (country) {
-      sql += ' AND (country_code = ? OR country_code = "UG")';
+      sql += " AND (country_code = ? OR country_code = 'UG')";
       params.push(country);
     }
     sql += ' ORDER BY is_custom DESC, name ASC';
