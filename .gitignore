@@ -1,0 +1,8 @@
+.env
+node_modules/
+uploads/
+dist/
+*.sqlite
+*.sqlite3
+.vite/
+
