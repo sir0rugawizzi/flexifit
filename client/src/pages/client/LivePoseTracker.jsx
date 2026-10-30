@@ -44,6 +44,17 @@ export default function LivePoseTracker({ onFinishSession }) {
 
   const currentConfig = exerciseConfig[selectedExercise];
 
+  // Initialize tracking immediately on mount
+  useEffect(() => {
+    handleStart();
+    return () => {
+      // Clean up tracking when leaving the page
+      setIsTracking(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (simIntervalRef.current) clearInterval(simIntervalRef.current);
+    };
+  }, []);
+
   // Duration timer
   useEffect(() => {
     if (isTracking) {
@@ -274,19 +285,19 @@ export default function LivePoseTracker({ onFinishSession }) {
           </div>
 
           {/* Action Trigger */}
-          {!isTracking ? (
-            <button
-              onClick={handleStart}
-              className="w-full py-3.5 rounded-2xl bg-primary hover:bg-orange-600 text-white font-extrabold text-sm shadow-xl shadow-orange-500/25 active:scale-[0.98] transition tap-target"
-            >
-              Start Exercise Tracking
-            </button>
-          ) : (
+          {isTracking ? (
             <button
               onClick={handleStop}
               className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-xl active:scale-[0.98] transition tap-target"
             >
               End Session &amp; Save Summary
+            </button>
+          ) : (
+            <button
+              onClick={handleStart}
+              className="w-full py-3.5 rounded-2xl bg-primary hover:bg-orange-600 text-white font-extrabold text-sm shadow-xl shadow-orange-500/25 active:scale-[0.98] transition tap-target"
+            >
+              Restart Exercise Tracking
             </button>
           )}
         </div>

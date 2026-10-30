@@ -77,6 +77,8 @@ app.use('/api/plans', plansRouter);
 app.use('/api/messages', messagesRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/form-checks', formCheckRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/feedback', feedbackRouter);
 
 // ── Serve built client in production (with SPA fallback) ──
 const clientDist = path.resolve(__dirname, '../../client/dist');
