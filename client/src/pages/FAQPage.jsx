@@ -28,23 +28,23 @@ export default function FAQPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-black text-dark mb-2">Frequently Asked Questions</h1>
+      <h1 className="text-3xl font-black text-[rgb(var(--color-fg))] mb-2">Frequently Asked Questions</h1>
       <p className="text-gray-500 mb-8">Everything you need to know about your FlexiFit journey.</p>
 
       <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <div key={index} className="bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all">
+          <div key={index} className="bg-white border border-[rgb(var(--color-border))] rounded-3xl overflow-hidden transition-all soft-shadow">
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
               className="w-full text-left p-4 flex justify-between items-center hover:bg-gray-50 transition"
             >
-              <span className="font-bold text-sm text-dark">{faq.question}</span>
+              <span className="font-bold text-sm text-[rgb(var(--color-fg))]">{faq.question}</span>
               <span className={`text-xl transition-transform ${openIndex === index ? 'rotate-180' : ''}`}>
                 ▾
               </span>
             </button>
             {openIndex === index && (
-              <div className="p-4 pt-0 text-sm text-gray-600 border-t border-gray-100 bg-gray-50/50">
+              <div className="p-4 pt-0 text-sm text-gray-600 border-t border-[rgb(var(--color-border))] bg-gray-50/50">
                 {faq.answer}
               </div>
             )}

@@ -34,13 +34,13 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-3xl font-black text-dark tracking-tight">Account Settings</h1>
+        <h1 className="text-3xl font-black text-[rgb(var(--color-fg))] tracking-tight">Account Settings</h1>
         <p className="text-sm text-gray-500">Manage your security and profile preferences</p>
       </div>
 
-      <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-surface">
-          <h2 className="font-bold text-dark flex items-center gap-2">
+      <div className="bg-white rounded-3xl border border-[rgb(var(--color-border))] shadow-sm overflow-hidden soft-shadow">
+        <div className="p-6 border-b border-[rgb(var(--color-border))] bg-gray-50">
+          <h2 className="font-bold text-[rgb(var(--color-fg))] flex items-center gap-2">
             <span>🔒</span> Security
           </h2>
         </div>
@@ -53,8 +53,8 @@ export default function SettingsPage() {
 
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase">
                   Current Password
                 </label>
                 <input
@@ -63,11 +63,11 @@ export default function SettingsPage() {
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] transition-all"
                 />
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-gray-600 uppercase">
                   New Password
                 </label>
                 <input
@@ -76,7 +76,7 @@ export default function SettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] transition-all"
                 />
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-dark text-white font-bold text-xs hover:bg-gray-800 transition active:scale-95 disabled:opacity-50"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[rgb(var(--color-primary))] text-white font-bold text-xs hover:bg-[rgb(var(--color-fg))] transition-all active:scale-95 disabled:opacity-50 shadow-lg shadow-[rgb(var(--color-primary))]/20"
             >
               {loading ? 'Updating…' : 'Update Password'}
             </button>
@@ -102,10 +102,10 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-amber-50 rounded-2xl border border-amber-100 flex gap-3">
+      <div className="mt-6 p-4 bg-[rgb(var(--color-primary))]/5 rounded-2xl border border-[rgb(var(--color-primary))]/20 flex gap-3">
         <span className="text-lg">💡</span>
-        <p className="text-xs text-amber-800 leading-relaxed">
-          <strong>Tip:</strong> If you've forgotten your password, please contact your trainer
+        <p className="text-xs text-[rgb(var(--color-fg))] leading-relaxed">
+          <strong className="text-[rgb(var(--color-primary))]">Tip:</strong> If you've forgotten your password, please contact your trainer
           directly via WhatsApp to initiate a secure reset process.
         </p>
       </div>

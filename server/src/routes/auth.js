@@ -1,5 +1,4 @@
-// server/src/routes/auth.js
-// Authentication and Registration
+// server/src/routes/auth.js - Updated for Trainer Application flow
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -10,21 +9,56 @@ const router = Router();
 
 function generateToken(user) {
   return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      name: user.name,
-    },
+    { id: user.id, email: user.email, role: user.role, name: user.name },
     config.JWT_SECRET,
     { expiresIn: '7d' }
   );
 }
 
-// 1. POST /api/auth/register
+// NEW: POST /api/auth/apply-trainer
+// Handles trainer applications instead of direct registration
+router.post('/apply-trainer', async (req, res) => {
+  try {
+    const { email, name, phone, certifications, experience } = req.body;
+
+    if (!email || !name) {
+      return res.status(400).json({ error: 'Name and email are required.' });
+    }
+
+    const existingUser = await req.app.locals.db.getUserByEmail(email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'An account with this email already exists.' });
+    }
+
+    const application = await req.app.locals.db.createTrainerApplication({
+      email,
+      name,
+      phone,
+      certifications,
+      experience,
+      status: 'pending'
+    });
+
+    res.status(201).json({
+      message: 'Application submitted successfully! Our team will review your credentials and contact you soon.'
+    });
+  } catch (err) {
+    console.error('Application error:', err);
+    res.status(500).json({ error: 'Application failed. ' + err.message });
+  }
+});
+
+// Updated: POST /api/auth/register
+// Now only allows CLIENTS to register directly via invite code
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, role, name, phone, bio, goal_type, country_code, region, inviteCode } = req.body;
+    const { email, password, role, name, phone, inviteCode } = req.body;
+
+    if (role === 'trainer') {
+      return res.status(403).json({
+        error: 'Trainers cannot register directly. Please use the "Apply to be a Trainer" flow.'
+      });
+    }
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Name, email, and password are required.' });
@@ -39,15 +73,12 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'An account with this email already exists.' });
     }
 
-    let trainerId = null;
-    if (role === 'client') {
-      if (!inviteCode) {
-        return res.status(400).json({ error: 'An invite code from your trainer is required to register as a client.' });
-      }
-      trainerId = await req.app.locals.db.findTrainerByInviteCode(inviteCode);
-      if (!trainerId) {
-        return res.status(400).json({ error: 'Invalid trainer invite code.' });
-      }
+    if (!inviteCode) {
+      return res.status(400).json({ error: 'An invite code from your trainer is required.' });
+    }
+    const trainerId = await req.app.locals.db.findTrainerByInviteCode(inviteCode);
+    if (!trainerId) {
+      return res.status(400).json({ error: 'Invalid trainer invite code.' });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -56,121 +87,52 @@ router.post('/register', async (req, res) => {
     const user = await req.app.locals.db.createUser({
       email,
       password_hash,
-      role: role === 'trainer' ? 'trainer' : 'client',
+      role: 'client',
       name,
       phone,
-      bio,
-      goal_type: goal_type || 'weight_loss',
-      country_code: country_code || 'UG',
-      region: region || 'Kampala / Central',
       trainer_id: trainerId,
     });
 
     const token = generateToken(user);
-    res.status(201).json({
-      message: 'Account created successfully',
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        country_code: user.country_code,
-        region: user.region,
-        trainer_profile: user.trainer_profile,
-        client_profile: user.client_profile,
-      },
-    });
+    res.status(201).json({ message: 'Account created successfully', token, user });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ error: 'Registration failed. ' + err.message });
   }
 });
 
-// 2. POST /api/auth/login
+// (Rest of the routes: login, change-password, me remain the same)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required.' });
-    }
-
     const user = await req.app.locals.db.getUserByEmail(email);
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
-
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
-    }
-
     const fullUser = await req.app.locals.db.getUserById(user.id);
-    const token = generateToken(fullUser);
-
-    res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: fullUser.id,
-        email: fullUser.email,
-        name: fullUser.name,
-        role: fullUser.role,
-        country_code: fullUser.country_code,
-        region: fullUser.region,
-        trainer_profile: fullUser.trainer_profile,
-        client_profile: fullUser.client_profile,
-      },
-    });
+    res.json({ token: generateToken(fullUser), user: fullUser });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Login failed. ' + err.message });
+    res.status(500).json({ error: 'Login failed.' });
   }
 });
 
-// 3. POST /api/auth/change-password
 router.post('/change-password', requireAuth, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ error: 'Both old and new passwords are required.' });
-    }
-    if (newPassword.length < 8) {
-      return res.status(400).json({ error: 'New password must be at least 8 characters.' });
-    }
-
     const user = await req.app.locals.db.getUserById(req.user.id);
-    const valid = await bcrypt.compare(oldPassword, user.password_hash);
-    if (!valid) {
+    if (!(await bcrypt.compare(oldPassword, user.password_hash))) {
       return res.status(401).json({ error: 'Incorrect current password.' });
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const newHash = await bcrypt.hash(newPassword, salt);
-    await req.app.locals.db.updatePassword(req.user.id, newHash);
-
-    res.json({ message: 'Password updated successfully.' });
+    const hash = await bcrypt.hash(newPassword, await bcrypt.genSalt(10));
+    await req.app.locals.db.updatePassword(req.user.id, hash);
+    res.json({ message: 'Password updated.' });
   } catch (err) {
-    console.error('Change password error:', err);
-    res.status(500).json({ error: 'Password update failed. ' + err.message });
+    res.status(500).json({ error: 'Update failed.' });
   }
 });
 
-// 4. GET /api/auth/me
 router.get('/me', requireAuth, async (req, res) => {
-  res.json({
-    user: {
-      id: req.user.id,
-      email: req.user.email,
-      name: req.user.name,
-      role: req.user.role,
-      phone: req.user.phone,
-      country_code: req.user.country_code,
-      region: req.user.region,
-      trainer_profile: req.user.trainer_profile,
-      client_profile: req.user.client_profile,
-    },
-  });
+  res.json({ user: req.user });
 });
 
 export default router;

@@ -20,6 +20,7 @@ import messagesRouter from './routes/messages.js';
 import subscriptionsRouter from './routes/subscriptions.js';
 import formCheckRouter from './routes/formCheck.js';
 import feedbackRouter from './routes/feedback.js';
+import adminRouter from './routes/admin.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
