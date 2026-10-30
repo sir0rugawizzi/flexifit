@@ -180,9 +180,9 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
         <div className="space-y-6">
           {/* Header & Flag Metric Banner */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-black text-dark tracking-tight">Client Compliance Queue</h2>
-              <p className="text-xs text-gray-500">
+            <div className="space-y-1">
+              <h2 className="text-3xl font-black text-[rgb(var(--color-fg))] tracking-tight">Client Compliance Queue</h2>
+              <p className="text-xs text-gray-500 font-medium">
                 Automated flags identify clients needing accountability check-ins
               </p>
             </div>
@@ -191,16 +191,16 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                  filter === 'all' ? 'bg-dark text-white' : 'bg-surface text-gray-600 hover:bg-gray-200'
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                  filter === 'all' ? 'bg-[rgb(var(--color-primary))] text-white shadow-md scale-105' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 All ({summary.total || 0})
               </button>
               <button
                 onClick={() => setFilter('flagged')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                  filter === 'flagged' ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 hover:bg-red-100'
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 flex items-center gap-1.5 ${
+                  filter === 'flagged' ? 'bg-red-600 text-white shadow-md scale-105' : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-100'
                 }`}
               >
                 <span>⚠️ Flagged Queue</span>
@@ -210,8 +210,8 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
               </button>
               <button
                 onClick={() => setFilter('on_track')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
-                  filter === 'on_track' ? 'bg-green-600 text-white' : 'bg-green-50 text-green-700 hover:bg-green-100'
+                className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 ${
+                  filter === 'on_track' ? 'bg-green-600 text-white shadow-md scale-105' : 'bg-green-50 text-green-700 hover:bg-green-100 border border-green-100'
                 }`}
               >
                 On Track ({summary.on_track || 0})
@@ -220,13 +220,13 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
           </div>
 
           {/* Search bar */}
-          <div className="relative">
+          <div className="relative group">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search clients by name or phone…"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-surface text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 rounded-2xl border border-[rgb(var(--color-border))] bg-white text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-primary))] transition-all duration-200 soft-shadow"
             />
           </div>
 
@@ -296,18 +296,18 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
                     )}
 
                     {/* Metrics snapshot */}
-                    <div className="grid grid-cols-3 gap-2 py-2 border-y border-gray-100 text-center mb-3">
+                    <div className="grid grid-cols-3 gap-3 py-3 border-y border-gray-100 text-center">
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase">Weight</div>
-                        <div className="text-xs font-bold text-dark">{client.current_weight_kg} kg</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-bold">Weight</div>
+                        <div className="text-xs font-bold text-[rgb(var(--color-fg))]">{client.current_weight_kg} kg</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase">7d Macro</div>
-                        <div className="text-xs font-bold text-primary">{client.macro_adherence_7d}%</div>
+                        <div className="text-[10px] text-gray-400 uppercase font-bold">7d Macro</div>
+                        <div className="text-xs font-bold text-[rgb(var(--color-primary))]">{client.macro_adherence_7d}%</div>
                       </div>
                       <div>
-                        <div className="text-[10px] text-gray-400 uppercase">Last Log</div>
-                        <div className="text-xs font-bold text-dark">
+                        <div className="text-[10px] text-gray-400 uppercase font-bold">Last Log</div>
+                        <div className="text-xs font-bold text-[rgb(var(--color-fg))]">
                           {client.last_workout_at ? client.last_workout_at.slice(5, 10) : 'None'}
                         </div>
                       </div>
