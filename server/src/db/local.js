@@ -17,7 +17,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export class LocalAdapter extends DataAdapter {
   constructor(dbPath) {
     super();
-    this.dbPath = dbPath || resolve(__dirname, '../../flexifit.sqlite');
+    this.dbPath = dbPath || process.env.DB_PATH || resolve(__dirname, '../../flexifit.sqlite');
     this.db = null;
   }
 
