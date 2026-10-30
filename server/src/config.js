@@ -27,7 +27,7 @@ const config = Object.freeze({
   // ── External services ───────────────────────────────────
   // Google Gemini API (free-tier vision-capable model)
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  GEMINI_MODEL: process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   ORDS_BASE_URL: process.env.ORDS_BASE_URL || '',
 
   // ── Uploads ─────────────────────────────────────────────
@@ -36,6 +36,10 @@ const config = Object.freeze({
   // ── Database mode ───────────────────────────────────────
   // When ORDS_BASE_URL is empty/falsy we fall back to local SQLite
   USE_LOCAL_DB: !process.env.ORDS_BASE_URL,
+
+  // ── Seeding (Only seed sample data when explicitly enabled) ─
+  SEED_SAMPLE_DATA: process.env.SEED_SAMPLE_DATA === 'true',
+  SEED_PASSWORD: process.env.SEED_PASSWORD || '',
 
   // ── Flag threshold constants ────────────────────────────
   FLAG_NO_WORKOUT_DAYS: 3,

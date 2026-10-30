@@ -1,10 +1,9 @@
 // client/src/components/Navbar.jsx
 // Main application header and responsive navigation
-
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ activeTab, onSelectTab, country = 'UG', onSelectCountry }) {
-  const { user, isTrainer, isClient, logout, demoLogin, isDemoMode } = useAuth();
+  const { user, isTrainer, isClient, logout } = useAuth();
 
   const trainerTabs = [
     { id: 'clients', label: 'Clients & Flags', icon: '👥' },
@@ -12,6 +11,7 @@ export default function Navbar({ activeTab, onSelectTab, country = 'UG', onSelec
     { id: 'meal-builder', label: 'Meal Plans', icon: '🍲' },
     { id: 'foods', label: 'Food Database', icon: '🥑' },
     { id: 'business', label: 'Business & Scaling', icon: '📈' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
   const clientTabs = [
@@ -21,7 +21,8 @@ export default function Navbar({ activeTab, onSelectTab, country = 'UG', onSelec
     { id: 'pose', label: 'Live Pose Tracker', icon: '👁️' },
     { id: 'form-check', label: 'AI Form Check', icon: '🤖' },
     { id: 'messages', label: 'Chat with Coach', icon: '💬' },
-    { id: 'subscription', label: 'MoMo Subscription', icon: '📱' },
+    { id: 'subscription', label: 'Subscription', icon: '📱' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' },
   ];
 
   const currentTabs = isTrainer ? trainerTabs : clientTabs;
@@ -41,7 +42,7 @@ export default function Navbar({ activeTab, onSelectTab, country = 'UG', onSelec
                 <span className="text-primary">Flexi</span>
                 <span className="text-dark">Fit</span>
                 <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 uppercase">
-                  {isTrainer ? 'Trainer SaaS' : 'Client PWA'}
+                  {isTrainer ? 'Trainer Portal' : 'Client App'}
                 </span>
               </div>
               <div className="text-[10px] text-gray-400 -mt-1 hidden sm:block">
@@ -67,17 +68,6 @@ export default function Navbar({ activeTab, onSelectTab, country = 'UG', onSelec
                 <option value="INT">🌍 International (Standard)</option>
               </select>
             </div>
-
-            {/* Quick Demo Switcher */}
-            {isDemoMode && (
-              <button
-                onClick={() => demoLogin(isTrainer ? 'client' : 'trainer')}
-                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 text-primary border border-orange-200 hover:bg-orange-100 transition"
-              >
-                <span>⇄</span>
-                <span>Demo as {isTrainer ? 'Client' : 'Trainer'}</span>
-              </button>
-            )}
 
             {/* User profile capsule */}
             <div className="flex items-center gap-2 pl-2 border-l border-gray-200">

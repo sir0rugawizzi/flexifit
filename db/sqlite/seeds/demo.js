@@ -1,10 +1,17 @@
-// Demo Seed Data: Coach Brian + 6 Clients with 4 Weeks of History
-// Password for all seeded demo accounts is "password123"
-// Standard precomputed bcrypt hash for "password123" ($2a$10$wT4M46k4L0sY9nZ8bI/Yv.Yf79tO5M0q9f649C9L.Ww85xN8gT0.W or standard 10-round hash)
-export const DEMO_PASSWORD_HASH = '$2b$10$3euPcmQ1doWy0W2m0c6/4.uVq/51Z2Mgl9VvE.yK4U6Uo.tTj2p5S';
+// db/sqlite/seeds/demo.js
+// Pilot Seed Generator: Coach Brian + 6 Clients with 4 Weeks of realistic history
+// Generates secure bcrypt hash dynamically from SEED_PASSWORD env var at runtime.
+// No hardcoded passwords or password hashes.
 
-export function generateDemoSeed() {
-  const passwordHash = DEMO_PASSWORD_HASH;
+import bcrypt from 'bcrypt';
+
+export async function generatePilotSeed(seedPassword) {
+  if (!seedPassword || typeof seedPassword !== 'string' || seedPassword.trim().length < 8) {
+    throw new Error('SEED_PASSWORD must be at least 8 characters long to seed accounts.');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(seedPassword, salt);
 
   const now = new Date();
   const daysAgo = (days) => {
@@ -23,13 +30,14 @@ export function generateDemoSeed() {
     avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     country_code: 'UG',
     region: 'Kampala / Central',
-    is_demo: 1,
+    is_demo: 0,
     created_at: daysAgo(60),
     profile: {
+      invite_code: 'BRIAN256',
       bio: 'Certified strength & conditioning coach with 8 years experience helping busy Kampala professionals get fit without gym burnout. Specialising in high-protein local Ugandan nutrition and home calisthenics.',
       whatsapp_number: '+256701234567',
       call_channel: 'whatsapp',
-      call_link: 'https://meet.google.com/flexifit-demo',
+      call_link: 'https://meet.google.com/flexifit-brian',
       monthly_rate_ugx: 90000,
     },
   };
@@ -46,7 +54,7 @@ export function generateDemoSeed() {
       avatar_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150',
       country_code: 'UG',
       region: 'Kampala / Central',
-      is_demo: 1,
+      is_demo: 0,
       created_at: daysAgo(35),
       profile: {
         trainer_id: 'user_trainer_brian',
@@ -73,22 +81,22 @@ export function generateDemoSeed() {
       avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       country_code: 'UG',
       region: 'Kampala / Central',
-      is_demo: 1,
-      created_at: daysAgo(40),
+      is_demo: 0,
+      created_at: daysAgo(30),
       profile: {
         trainer_id: 'user_trainer_brian',
-        target_calories: 2400,
+        target_calories: 2500,
         target_protein_g: 160,
-        target_carbs_g: 280,
-        target_fat_g: 70,
-        current_weight_kg: 82.5,
-        target_weight_kg: 76.0,
+        target_carbs_g: 300,
+        target_fat_g: 75,
+        current_weight_kg: 88.5,
+        target_weight_kg: 82.0,
         goal_type: 'muscle_gain',
         country_code: 'UG',
         region: 'Kampala / Central',
         preferred_portion_unit: 'local_visual',
       },
-      flag_scenario: 'low_macro', // 7-day macro adherence ~52% (too much chapati/mandazi)
+      flag_scenario: 'low_macro', // 7-day adherence 45%
     },
     {
       id: 'client_namubiru_faith',
@@ -96,26 +104,26 @@ export function generateDemoSeed() {
       password_hash: passwordHash,
       role: 'client',
       name: 'Faith Namubiru',
-      phone: '+256752555666',
+      phone: '+256704555666',
       avatar_url: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150',
       country_code: 'UG',
       region: 'Kampala / Central',
-      is_demo: 1,
-      created_at: daysAgo(30),
+      is_demo: 0,
+      created_at: daysAgo(25),
       profile: {
         trainer_id: 'user_trainer_brian',
         target_calories: 1800,
         target_protein_g: 120,
         target_carbs_g: 200,
         target_fat_g: 50,
-        current_weight_kg: 69.8,
-        target_weight_kg: 64.0,
+        current_weight_kg: 68.0,
+        target_weight_kg: 62.0,
         goal_type: 'weight_loss',
         country_code: 'UG',
         region: 'Kampala / Central',
         preferred_portion_unit: 'local_visual',
       },
-      flag_scenario: 'no_recent_workout', // Last workout 5 days ago
+      flag_scenario: 'no_recent_workout', // 5 days since last workout
     },
     {
       id: 'client_ochieng_david',
@@ -123,82 +131,85 @@ export function generateDemoSeed() {
       password_hash: passwordHash,
       role: 'client',
       name: 'David Ochieng',
-      phone: '+256702777888',
+      phone: '+256752777888',
       avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150',
       country_code: 'UG',
-      region: 'Northern / Gulu',
-      is_demo: 1,
-      created_at: daysAgo(45),
+      region: 'Kampala / Central',
+      is_demo: 0,
+      created_at: daysAgo(28),
       profile: {
         trainer_id: 'user_trainer_brian',
         target_calories: 2300,
         target_protein_g: 150,
-        target_carbs_g: 270,
-        target_fat_g: 65,
-        current_weight_kg: 78.4,
-        target_weight_kg: 74.0,
+        target_carbs_g: 260,
+        target_fat_g: 70,
+        current_weight_kg: 79.4,
+        target_weight_kg: 75.0,
         goal_type: 'general_fitness',
         country_code: 'UG',
-        region: 'Northern / Gulu',
+        region: 'Kampala / Central',
         preferred_portion_unit: 'local_visual',
       },
-      flag_scenario: 'borderline', // Last weight 6 days ago, macro ~73%
+      flag_scenario: 'borderline', // Weigh-in 6 days ago
     },
     {
-      id: 'client_tumusiime_ronald',
-      email: 'ronald@flexifit.ug',
+      id: 'client_tumusiime_sarah',
+      email: 'sarah@flexifit.ug',
       password_hash: passwordHash,
       role: 'client',
-      name: 'Ronald Tumusiime',
-      phone: '+256774999000',
-      avatar_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150',
-      country_code: 'UG',
-      region: 'Western / Mbarara',
-      is_demo: 1,
-      created_at: daysAgo(50),
-      profile: {
-        trainer_id: 'user_trainer_brian',
-        target_calories: 2500,
-        target_protein_g: 170,
-        target_carbs_g: 300,
-        target_fat_g: 70,
-        current_weight_kg: 79.1,
-        target_weight_kg: 82.0,
-        goal_type: 'muscle_gain',
-        country_code: 'UG',
-        region: 'Western / Mbarara',
-        preferred_portion_unit: 'local_visual',
-      },
-      flag_scenario: 'on_track', // High adherence, consistent workouts
-    },
-    {
-      id: 'client_nalwanga_brenda',
-      email: 'brenda@flexifit.ug',
-      password_hash: passwordHash,
-      role: 'client',
-      name: 'Brenda Nalwanga',
-      phone: '+256784111333',
+      name: 'Sarah Tumusiime',
+      phone: '+256779999000',
       avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150',
       country_code: 'UG',
       region: 'Kampala / Central',
-      is_demo: 1,
-      created_at: daysAgo(55),
+      is_demo: 0,
+      created_at: daysAgo(40),
       profile: {
         trainer_id: 'user_trainer_brian',
-        target_calories: 1750,
-        target_protein_g: 125,
-        target_carbs_g: 180,
-        target_fat_g: 48,
-        current_weight_kg: 63.4,
-        target_weight_kg: 60.0,
+        target_calories: 2000,
+        target_protein_g: 135,
+        target_carbs_g: 225,
+        target_fat_g: 60,
+        current_weight_kg: 71.0,
+        target_weight_kg: 65.0,
         goal_type: 'weight_loss',
         country_code: 'UG',
         region: 'Kampala / Central',
         preferred_portion_unit: 'local_visual',
       },
-      flag_scenario: 'on_track', // Perfect adherence
+      flag_scenario: 'compliant', // Fully compliant
+    },
+    {
+      id: 'client_ssenyonga_ivan',
+      email: 'ivan@flexifit.ug',
+      password_hash: passwordHash,
+      role: 'client',
+      name: 'Ivan Ssenyonga',
+      phone: '+256712333111',
+      avatar_url: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150',
+      country_code: 'UG',
+      region: 'Kampala / Central',
+      is_demo: 0,
+      created_at: daysAgo(45),
+      profile: {
+        trainer_id: 'user_trainer_brian',
+        target_calories: 2600,
+        target_protein_g: 170,
+        target_carbs_g: 310,
+        target_fat_g: 80,
+        current_weight_kg: 84.0,
+        target_weight_kg: 78.0,
+        goal_type: 'endurance',
+        country_code: 'UG',
+        region: 'Kampala / Central',
+        preferred_portion_unit: 'local_visual',
+      },
+      flag_scenario: 'compliant', // Fully compliant
     },
   ];
 
   return { trainer, clients, daysAgo };
 }
+
+// Backward-compatible alias
+export const generateDemoSeed = generatePilotSeed;

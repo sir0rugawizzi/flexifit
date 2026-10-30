@@ -98,8 +98,8 @@ Deploy FlexiFit as a single Node Web Service on [Render.com](https://render.com)
 | :--- | :--- |
 | **Runtime** | `Node` |
 | **Node Version** | `>= 20` (specified in `engines` field) |
-| **Build Command** | `npm run build` *(or `cd server && npm install && cd ../client && npm install && npm run build`)* |
-| **Start Command** | `npm start` *(or `node server/src/index.js`)* |
+| **Build Command** | `npm run build` |
+| **Start Command** | `npm start` |
 | **Health Check Path** | `/healthz` |
 
 ### 2. Environment Variables
@@ -111,7 +111,7 @@ Add these under the **Environment** tab in your Render Web Service:
 | `JWT_SECRET` | **Yes** | A strong random string (e.g. `openssl rand -hex 32`). *The server refuses to start in production without this.* |
 | `PORT` | Auto | Render sets this automatically (defaults to `3000` locally, `10000` on Render). Server binds to `0.0.0.0`. |
 | `GEMINI_API_KEY` | Optional | Your Google Gemini API key for live video form analysis (falls back to sample analysis if empty). |
-| `GEMINI_MODEL` | Optional | `gemini-2.5-flash` (Current vision-capable model on the free tier) |
+| `GEMINI_MODEL` | Optional | `gemini-3.8-flash` (Current vision-capable model on the free tier) |
 | `ORDS_BASE_URL` | Optional | Oracle ORDS endpoint URL. **Leave empty** to use local SQLite mode with full auto-seeded demo story. |
 
 ### 3. Automatic Seeding on Startup

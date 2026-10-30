@@ -6,6 +6,7 @@ import { readFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcrypt';
 import { DataAdapter } from './adapter.js';
 import { SEED_FOODS } from '../../../db/sqlite/seeds/foods.js';
 import { generateDemoSeed } from '../../../db/sqlite/seeds/demo.js';
@@ -49,11 +50,11 @@ export class LocalAdapter extends DataAdapter {
       insertMany(SEED_FOODS);
     }
 
-    // Auto-seed demo accounts and 4-week history if empty
+    // Auto-seed pilot data if empty
     const userCount = this.db.prepare('SELECT COUNT(*) AS count FROM users').get().count;
-    if (userCount === 0) {
-      console.log('LocalAdapter: seeding Coach Brian Mukasa & 6 clients with 4 weeks history...');
-      await this.seedDemoStory();
+    if (userCount === 0 && config.SEED_SAMPLE_DATA) {
+      console.log('LocalAdapter: seeding pilot data...');
+      await this.seedPilotData();
     }
 
     console.log('LocalAdapter: SQLite ready and verified');
@@ -67,14 +68,45 @@ export class LocalAdapter extends DataAdapter {
     }
   }
 
-  async seedDemoStory() {
+  async updatePassword(userId, newPasswordHash) {
+    this.db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newPasswordHash, userId);
+    return { success: true };
+  }
+
+  async getTrainerInviteCode(trainerId) {
+    // In a real app, this would be a separate table.
+    // For the pilot, we'll use a deterministic code based on ID for simplicity,
+    // but in a production app, this would be a randomly generated unique string.
+    return `FF-${trainerId.slice(0, 6).toUpperCase()}`;
+  }
+
+  async findTrainerByInviteCode(code) {
+    // Mocking invite code lookup for the pilot
+    const trainers = this.db.prepare('SELECT id FROM trainer_profiles').all();
+    for (const t of trainers) {
+      if (`FF-${t.user_id.slice(0, 6).toUpperCase()}` === code) {
+        return t.user_id;
+      }
+    }
+    return null;
+  }
+
+  async updateSubscriptionStatus(id, status) {
+    this.db.prepare('UPDATE subscriptions SET status = ? WHERE id = ?').run(status, id);
+    return { success: true };
+  }
+
+  async seedPilotData() {
     const { trainer, clients, daysAgo } = await generateDemoSeed();
+    const seedPassword = config.SEED_PASSWORD || 'password123';
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(seedPassword, salt);
 
     // Insert Trainer
     this.db.prepare(`
       INSERT INTO users (id, email, password_hash, role, name, phone, avatar_url, country_code, region, is_demo, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(trainer.id, trainer.email, trainer.password_hash, trainer.role, trainer.name, trainer.phone, trainer.avatar_url, trainer.country_code, trainer.region, trainer.is_demo, trainer.created_at);
+    `).run(trainer.id, trainer.email, password_hash, trainer.role, trainer.name, trainer.phone, trainer.avatar_url, trainer.country_code, trainer.region, 0, trainer.created_at);
 
     this.db.prepare(`
       INSERT INTO trainer_profiles (user_id, bio, whatsapp_number, call_channel, call_link, monthly_rate_ugx)
@@ -130,7 +162,7 @@ export class LocalAdapter extends DataAdapter {
       this.db.prepare(`
         INSERT INTO users (id, email, password_hash, role, name, phone, avatar_url, country_code, region, is_demo, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(client.id, client.email, client.password_hash, client.role, client.name, client.phone, client.avatar_url, client.country_code, client.region, client.is_demo, client.created_at);
+      `).run(client.id, client.email, password_hash, client.role, client.name, client.phone, client.avatar_url, client.country_code, client.region, 0, client.created_at);
 
       this.db.prepare(`
         INSERT INTO client_profiles (user_id, trainer_id, target_calories, target_protein_g, target_carbs_g, target_fat_g, current_weight_kg, target_weight_kg, goal_type, country_code, region, preferred_portion_unit)
@@ -272,7 +304,7 @@ export class LocalAdapter extends DataAdapter {
     this.db.prepare(`
       INSERT INTO users (id, email, password_hash, role, name, phone, avatar_url, country_code, region, is_demo, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-    `).run(id, data.email, data.password_hash, data.role, data.name, data.phone || null, data.avatar_url || null, data.country_code || 'UG', data.region || 'Kampala / Central', data.is_demo ? 1 : 0);
+    `).run(id, data.email, data.password_hash, data.role, data.name, data.phone || null, data.avatar_url || null, data.country_code || 'UG', data.region || 'Kampala / Central', 0);
 
     if (data.role === 'trainer') {
       this.db.prepare(`

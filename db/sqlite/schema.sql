@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS trainer_profiles (
   user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  invite_code TEXT UNIQUE,
   bio TEXT,
   whatsapp_number TEXT,
   call_channel TEXT DEFAULT 'whatsapp' CHECK(call_channel IN ('whatsapp', 'meet', 'zoom')),
@@ -188,11 +189,14 @@ CREATE TABLE IF NOT EXISTS call_requests (
 CREATE TABLE IF NOT EXISTS subscriptions (
   id TEXT PRIMARY KEY,
   client_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+  trainer_id TEXT REFERENCES users(id) ON DELETE CASCADE,
   provider TEXT NOT NULL CHECK(provider IN ('MTN_MOMO', 'AIRTEL_MONEY')),
   phone_number TEXT NOT NULL,
   amount_ugx INTEGER NOT NULL,
-  status TEXT DEFAULT 'APPROVED',
-  reference_id TEXT NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK(status IN ('pending', 'active', 'cancelled', 'rejected')),
+  reference_id TEXT NOT NULL UNIQUE,
+  paid_at TEXT,
+  confirmed_at TEXT,
   created_at TEXT DEFAULT (datetime('now'))
 );
 

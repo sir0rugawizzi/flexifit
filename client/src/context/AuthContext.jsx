@@ -7,7 +7,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem('flexifit_token'));
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
 
   // Validate existing token on mount
   useEffect(() => {
@@ -19,7 +18,6 @@ export function AuthProvider({ children }) {
     apiGet('/auth/me')
       .then((data) => {
         setUser(data.user);
-        setIsDemoMode(data.user?.is_demo || false);
       })
       .catch(() => {
         // Token invalid – clear it
@@ -36,17 +34,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('flexifit_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
-    setIsDemoMode(false);
-    return data;
-  }, []);
-
-  const demoLogin = useCallback(async (role) => {
-    const data = await apiPost('/auth/demo-login', { role });
-    localStorage.setItem('flexifit_token', data.token);
-    localStorage.setItem('flexifit_user', JSON.stringify(data.user));
-    setToken(data.token);
-    setUser(data.user);
-    setIsDemoMode(true);
     return data;
   }, []);
 
@@ -56,7 +43,6 @@ export function AuthProvider({ children }) {
     localStorage.setItem('flexifit_user', JSON.stringify(data.user));
     setToken(data.token);
     setUser(data.user);
-    setIsDemoMode(false);
     return data;
   }, []);
 
@@ -65,32 +51,18 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('flexifit_user');
     setToken(null);
     setUser(null);
-    setIsDemoMode(false);
   }, []);
-
-  /** Demo mode role switcher – switch between trainer & client instantly */
-  const switchRole = useCallback(async (role) => {
-    if (!isDemoMode) return;
-    const data = await apiPost('/auth/demo-login', { role });
-    localStorage.setItem('flexifit_token', data.token);
-    localStorage.setItem('flexifit_user', JSON.stringify(data.user));
-    setToken(data.token);
-    setUser(data.user);
-  }, [isDemoMode]);
 
   const value = {
     user,
     token,
     loading,
-    isDemoMode,
     isAuthenticated: !!user,
     isTrainer: user?.role === 'trainer',
     isClient: user?.role === 'client',
     login,
-    demoLogin,
     register,
     logout,
-    switchRole,
   };
 
   return (

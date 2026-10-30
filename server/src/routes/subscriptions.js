@@ -1,55 +1,60 @@
 // server/src/routes/subscriptions.js
-// Simulated MTN MoMo & Airtel Money subscription payments
-
+// Subscription payment management
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 router.use(requireAuth);
 
-// POST /api/subscriptions/simulate
-router.post('/simulate', async (req, res) => {
+// POST /api/subscriptions/request
+// Client notifies the trainer that they have made the payment outside the app
+router.post('/request', async (req, res) => {
   try {
-    const { provider = 'MTN_MOMO', phone_number, amount_ugx = 90000, plan_name = 'FlexiFit Monthly Unlimited' } = req.body;
+    const { provider = 'MTN_MOMO', phone_number, amount_ugx = 90000 } = req.body;
 
     if (!phone_number) {
-      return res.status(400).json({ error: 'Phone number is required for Mobile Money simulation.' });
+      return res.status(400).json({ error: 'Phone number is required for payment verification.' });
     }
 
-    const txId = `UG-${provider === 'MTN_MOMO' ? 'MTN' : 'AIR'}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const txId = `REF-UG-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const result = await req.app.locals.db.createSubscription({
       client_id: req.user.id,
       provider,
       phone_number,
       amount_ugx: Number(amount_ugx),
-      status: 'APPROVED',
+      status: 'PENDING',
       reference_id: txId,
     });
 
-    const isMTN = provider === 'MTN_MOMO';
-    const ussdMessage = isMTN
-      ? `Y'ello! Enter MM PIN to approve payment of UGX ${Number(amount_ugx).toLocaleString()} to FlexiFit (Ref: ${txId})`
-      : `Enter Airtel Money PIN to pay UGX ${Number(amount_ugx).toLocaleString()} to FlexiFit Ltd:`;
-
-    const smsReceipt = isMTN
-      ? `Y'ello! Trans ID ${txId}: Payment of UGX ${Number(amount_ugx).toLocaleString()} to FlexiFit was successful. Fee: UGX 0. New Balance: UGX 185,400.`
-      : `Airtel Money: UGX ${Number(amount_ugx).toLocaleString()} paid to FlexiFit. TxId ${txId}. Balance: UGX 92,000.`;
-
     res.json({
-      message: 'Mobile Money simulation approved',
+      message: 'Payment request submitted. Your trainer will confirm it shortly.',
       subscription: result,
-      ussd_simulation: {
-        provider,
-        ussd_code: isMTN ? '*165#' : '*185#',
-        prompt_text: ussdMessage,
-        sms_receipt: smsReceipt,
-        disclaimer: 'SIMULATION ONLY: No real funds were deducted.',
-      },
+      reference_id: txId,
     });
   } catch (err) {
     console.error('Subscription error:', err);
-    res.status(500).json({ error: 'Subscription simulation failed: ' + err.message });
+    res.status(500).json({ error: 'Payment request failed: ' + err.message });
+  }
+});
+
+// POST /api/subscriptions/confirm
+// Trainer confirms receipt of payment
+router.post('/confirm', async (req, res) => {
+  try {
+    if (req.user.role !== 'trainer') {
+      return res.status(403).json({ error: 'Only trainers can confirm payments.' });
+    }
+    const { subscriptionId } = req.body;
+    if (!subscriptionId) {
+      return res.status(400).json({ error: 'Subscription ID is required.' });
+    }
+
+    await req.app.locals.db.updateSubscriptionStatus(subscriptionId, 'APPROVED');
+    res.json({ message: 'Payment confirmed and subscription activated.' });
+  } catch (err) {
+    console.error('Confirmation error:', err);
+    res.status(500).json({ error: 'Confirmation failed: ' + err.message });
   }
 });
 

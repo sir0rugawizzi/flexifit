@@ -1,13 +1,13 @@
 // client/src/App.jsx
-// Main FlexiFit Single Page / PWA application with Pitch Mode Bar and Role Router
-
+// Main FlexiFit Single Page / PWA application
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/auth/LoginPage';
 import Navbar from './components/Navbar';
-import PitchModeBar from './components/PitchModeBar';
 import TrainerDashboard from './pages/trainer/TrainerDashboard';
 import ClientApp from './pages/client/ClientApp';
+import PrivacyPage from './pages/PrivacyPage';
+import SettingsPage from './pages/SettingsPage';
 
 function MainApp() {
   const { user, isAuthenticated, loading, isTrainer } = useAuth();
@@ -28,18 +28,19 @@ function MainApp() {
   }
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    return (
+      <div className="flex flex-col min-h-screen">
+        <LoginPage />
+        <footer className="mt-auto p-6 text-center text-xs text-gray-500 flex justify-center gap-4">
+          <a href="/privacy" className="underline">Privacy Policy</a>
+          <a href="/faq" className="underline">FAQs</a>
+        </footer>
+      </div>
+    );
   }
-
-  const handleNavigateBeat = (targetTab) => {
-    setActiveTab(targetTab);
-  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-dark flex flex-col pt-8">
-      {/* 5-Min Pitch Mode Bar at the very top */}
-      <PitchModeBar onNavigateBeat={handleNavigateBeat} />
-
       {/* Main App Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -50,10 +51,15 @@ function MainApp() {
 
       {/* Main Content Viewport */}
       <main className="flex-1 pb-16">
-        {isTrainer ? (
-          <TrainerDashboard activeTab={activeTab} country={country} />
-        ) : (
-          <ClientApp activeTab={activeTab} country={country} />
+        {activeTab === 'privacy' && <PrivacyPage />}
+        {activeTab === 'faq' && <FAQPage />}
+        {activeTab === 'settings' && <SettingsPage />}
+        {activeTab !== 'privacy' && activeTab !== 'faq' && activeTab !== 'settings' && (
+          isTrainer ? (
+            <TrainerDashboard activeTab={activeTab} country={country} />
+          ) : (
+            <ClientApp activeTab={activeTab} country={country} />
+          )
         )}
       </main>
     </div>

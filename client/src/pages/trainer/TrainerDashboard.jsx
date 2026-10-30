@@ -1,5 +1,5 @@
 // client/src/pages/trainer/TrainerDashboard.jsx
-// Trainer SaaS Dashboard: Clients & Flags, Plan Builders, Food Manager, Business Scaling ROI
+// Trainer SaaS Dashboard: Clients & Flags, Plan Builders, Food Manager, Business Scaling ROI, Payments
 
 import { useState, useEffect } from 'react';
 import { apiGet, apiPost } from '../../api/client';
@@ -12,6 +12,7 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
   const [summary, setSummary] = useState({});
   const [foods, setFoods] = useState([]);
   const [businessStats, setBusinessStats] = useState(null);
+  const [paymentRequests, setPaymentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, flagged, on_track
   const [search, setSearch] = useState('');
@@ -61,12 +62,14 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
       apiGet('/trainer/clients'),
       apiGet(`/foods?country=${country}`),
       apiGet('/trainer/business-stats'),
+      apiGet('/subscriptions/pending'),
     ])
-      .then(([clientsRes, foodsRes, statsRes]) => {
+      .then(([clientsRes, foodsRes, statsRes, paymentsRes]) => {
         setClients(clientsRes.clients || []);
         setSummary(clientsRes.summary || {});
         setFoods(foodsRes.foods || []);
         setBusinessStats(statsRes.stats || null);
+        setPaymentRequests(paymentsRes.requests || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -144,6 +147,16 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
       alert(`Workout plan assigned successfully!`);
     } catch (err) {
       alert('Error assigning workout plan: ' + err.message);
+    }
+  };
+
+  const handleConfirmPayment = async (requestId) => {
+    try {
+      await apiPost('/subscriptions/confirm', { requestId });
+      alert('Payment confirmed. Client subscription active!');
+      loadData();
+    } catch (err) {
+      alert('Error confirming payment: ' + err.message);
     }
   };
 
@@ -622,6 +635,53 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
               * Approximate reference values from East African food composition tables. To be validated by a certified nutritionist.
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── TAB 6: PAYMENT REQUESTS ─────────────────────────────────────── */}
+      {activeTab === 'payments' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black text-dark tracking-tight">Payment Confirmations</h2>
+              <p className="text-xs text-gray-500">
+                Manual verification of MoMo / Bank transfers for client subscriptions
+              </p>
+            </div>
+          </div>
+
+          {paymentRequests.length === 0 ? (
+            <div className="bg-white p-10 rounded-3xl border border-dashed border-gray-300 text-center space-y-3">
+              <div className="text-4xl">✅</div>
+              <h3 className="font-bold text-dark">No Pending Requests</h3>
+              <p className="text-xs text-gray-500">All client payments are currently verified and up to date.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {paymentRequests.map((req) => (
+                <div key={req.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center">
+                      {req.client_name[0]}
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-dark">{req.client_name}</div>
+                      <div className="text-[11px] text-gray-500">
+                        Amount: <span className="font-bold text-dark">{formatUGX(req.amount)}</span> • {req.payment_method}
+                      </div>
+                      <div className="text-[10px] text-gray-400 mt-1">Requested: {new Date(req.created_at).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleConfirmPayment(req.id)}
+                    className="px-4 py-2 rounded-xl bg-green-600 text-white font-bold text-xs hover:bg-green-700 transition active:scale-95"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
