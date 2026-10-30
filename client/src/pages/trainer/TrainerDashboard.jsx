@@ -13,6 +13,7 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
   const [foods, setFoods] = useState([]);
   const [businessStats, setBusinessStats] = useState(null);
   const [paymentRequests, setPaymentRequests] = useState([]);
+  const [trainerApplications, setTrainerApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, flagged, on_track
   const [search, setSearch] = useState('');
@@ -63,13 +64,15 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
       apiGet(`/foods?country=${country}`),
       apiGet('/trainer/business-stats'),
       apiGet('/subscriptions/pending'),
+      apiGet('/admin/trainer-applications'),
     ])
-      .then(([clientsRes, foodsRes, statsRes, paymentsRes]) => {
+      .then(([clientsRes, foodsRes, statsRes, paymentsRes, appsRes]) => {
         setClients(clientsRes.clients || []);
         setSummary(clientsRes.summary || {});
         setFoods(foodsRes.foods || []);
         setBusinessStats(statsRes.stats || null);
         setPaymentRequests(paymentsRes.requests || []);
+        setTrainerApplications(appsRes || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -157,6 +160,16 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
       loadData();
     } catch (err) {
       alert('Error confirming payment: ' + err.message);
+    }
+  };
+
+  const handleApproveTrainer = async (appId) => {
+    try {
+      const res = await apiPost(`/admin/approve-trainer/${appId}`, {});
+      alert(res.message || 'Trainer approved successfully!');
+      loadData();
+    } catch (err) {
+      alert('Error approving trainer: ' + err.message);
     }
   };
 
@@ -685,7 +698,72 @@ export default function TrainerDashboard({ activeTab = 'clients', country = 'UG'
         </div>
       )}
 
-      {/* ── TAB 5: BUSINESS VIEW & SCALING ROI ─────────────────────────── */}
+      {/* ── TAB 7: ADMIN PANEL (TRAINER VETTING) ───────────────────────── */}
+      {activeTab === 'admin' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-black text-dark tracking-tight">Trainer Vetting Panel</h2>
+              <p className="text-xs text-gray-500">
+                Review and approve credentials for prospective coaches joining the platform
+              </p>
+            </div>
+          </div>
+
+          {trainerApplications.length === 0 ? (
+            <div className="bg-white p-10 rounded-3xl border border-dashed border-gray-300 text-center space-y-3">
+              <div className="text-4xl">📑</div>
+              <h3 className="font-bold text-dark">No Pending Applications</h3>
+              <p className="text-xs text-gray-500">All trainer applications have been processed.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {trainerApplications.map((app) => (
+                <div key={app.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center">
+                        {app.name[0]}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm text-dark">{app.name}</div>
+                        <div className="text-[11px] text-gray-500">{app.email}</div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 uppercase">
+                      {app.status}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="p-3 bg-surface rounded-xl text-xs">
+                      <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Certifications</div>
+                      <div className="text-dark">{app.certifications || 'None provided'}</div>
+                    </div>
+                    <div className="p-3 bg-surface rounded-xl text-xs">
+                      <div className="text-[10px] font-bold text-gray-400 uppercase mb-1">Experience</div>
+                      <div className="text-dark">{app.experience || 'Not specified'}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="text-[11px] text-gray-400">
+                      Phone: {app.phone || 'N/A'}
+                    </div>
+                    <button
+                      onClick={() => handleApproveTrainer(app.id)}
+                      className="px-4 py-2 rounded-xl bg-dark text-white font-bold text-xs hover:bg-gray-800 transition active:scale-95"
+                    >
+                      Approve & Create Account
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {activeTab === 'business' && (
         <div className="space-y-6">
           <div>
